@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"trivia/libraries/prize"
 	"trivia/libraries/problems"
 )
 
@@ -13,20 +14,8 @@ const limitSeconds = 60
 const reward = 10
 const penalty = 5
 
-type prize struct {
-	amount int
-}
-
-func (p *prize) calculate(change int) {
-	if p.amount+change < 0 {
-		p.amount = 0
-	} else {
-		p.amount += change
-	}
-}
-
 func announcement(ammount int) {
-	fmt.Printf("\n-------------- won $%+v so far --------------\n\n", ammount)
+	fmt.Printf("-------------- won $%+v so far --------------\n\n", ammount)
 }
 
 func main() {
@@ -39,7 +28,7 @@ func main() {
 	}
 
 	// ENTER to start
-	fmt.Printf("\n***************** 1980s TV TRIVIA QUIZ *****************\nYou win $%d for every correct answer!\nYou loose $%d for every wrong answer (no worries, you won't go negative, it's all about winning! :D)\nTime limit is %d seconds.\n\nREADY SET GO!(press ENTER to start)", reward, penalty, limitSeconds)
+	fmt.Printf("\n***************** 1980s TV TRIVIA QUIZ *****************\nYou win $%d for every correct answer!\nYou loose $%d for every wrong answer (no worries, you won't go negative, it's all about winning! :D)\nTime limit is %d seconds.\n\nREADY SET GO!(press ENTER to start)\n\n", reward, penalty, limitSeconds)
 	reader := bufio.NewReader(os.Stdin)
 	start, _ := reader.ReadString('\n')
 	timer := time.NewTimer(time.Duration(*timeLimit) * time.Second)
@@ -51,7 +40,7 @@ func main() {
 	correct := 0
 	readQuestions := 0
 
-	prize := &prize{0}
+	prize := &prize.Prize{0}
 
 problemloop:
 	for _, p := range problems {
@@ -76,17 +65,17 @@ problemloop:
 			break problemloop
 		case answer := <-answerCh:
 			if answer == p.AnswerOptionNumber {
-				fmt.Print("*** CORRECT ***\n")
-				prize.calculate(reward)
+				fmt.Print("CORRECT\n")
+				prize.Calculate(reward)
 				correct++
-				announcement(prize.amount)
+				announcement(prize.Amount)
 
 				reader := bufio.NewReader(os.Stdin)
 				_, _ = reader.ReadString('\n')
 			} else {
-				fmt.Printf("*** INCORRECT *** => %s. %s\n", p.AnswerOptionNumber, p.AnswerText)
-				prize.calculate(-penalty)
-				announcement(prize.amount)
+				fmt.Printf("INCORRECT => %s. %s\n", p.AnswerOptionNumber, p.AnswerText)
+				prize.Calculate(-penalty)
+				announcement(prize.Amount)
 
 				reader := bufio.NewReader(os.Stdin)
 				_, _ = reader.ReadString('\n')
@@ -94,7 +83,7 @@ problemloop:
 		}
 	}
 
-	fmt.Printf("\nTIME'S UP!\nYou scored %d out of %d. Won $%d.\n", correct, readQuestions, prize.amount)
+	fmt.Printf("\nTIME'S UP!\nYou scored %d out of %d. Won $%d.\n", correct, readQuestions, prize.Amount)
 }
 
 func exit(err error) {
