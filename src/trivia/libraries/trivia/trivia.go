@@ -15,13 +15,13 @@ const reward = 10
 const penalty = 5
 
 // Trivia game
-func Trivia() {
+func Trivia() error {
 	timeLimit := flag.Int("limit", limitSeconds, "the time limit for the quiz in seconds")
 	flag.Parse()
 
 	problems, err := problems.GetProblems()
 	if err != nil {
-		exit(err)
+		return err
 	}
 
 	// ENTER to start
@@ -75,7 +75,7 @@ problemloop:
 	}
 
 	fmt.Printf("\nTIME'S UP!\nYou scored %d out of %d. Won $%d.\n", correct, readQuestions, prize.Amount)
-
+	return nil
 }
 
 func announcement(ammount int) {
