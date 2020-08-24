@@ -45,7 +45,7 @@ problemloop:
 		fmt.Printf(" 1. %s\n", p.Option1)
 		fmt.Printf(" 2. %s\n", p.Option2)
 		fmt.Printf(" 3. %s\n\n", p.Option3)
-		fmt.Print("Your answer: ")
+		fmt.Print("Your answer(enter a number): ")
 
 		answerCh := make(chan string)
 		go func() {
