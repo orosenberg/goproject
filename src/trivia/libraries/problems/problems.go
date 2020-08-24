@@ -2,7 +2,6 @@ package problems
 
 import (
 	"encoding/csv"
-	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -10,10 +9,7 @@ import (
 )
 
 // GetProblems returns trivia questions
-func GetProblems() ([]Problem, error) {
-	csvFilename := flag.String("csv", "problems.csv", "a csv file in the format of 'question,option,option,option,answer'")
-	flag.Parse()
-
+func GetProblems(csvFilename *string) ([]Problem, error) {
 	file, err := os.Open(*csvFilename)
 	if err != nil {
 		return nil, err

@@ -2,6 +2,7 @@ package trivia
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -17,7 +18,9 @@ const penalty = 5
 
 // Trivia game
 func Trivia() error {
-	problems, err := problems.GetProblems()
+	csvFilename := flag.String("csv", "problems.csv", "a csv file in the format of 'question,option,option,option,answer'")
+	flag.Parse()
+	problems, err := problems.GetProblems(csvFilename)
 	if err != nil {
 		return err
 	}
