@@ -40,7 +40,7 @@ func parseLines(lines [][]string) ([]Problem, error) {
 			Option1:            line[1],
 			Option2:            line[2],
 			Option3:            line[3],
-			AnswerOptionNumber: strings.TrimSpace(line[4]),
+			AnswerOptionNumber: solutionOptionNumber,
 			AnswerText:         line[solutionOptionNumber],
 		}
 	}
@@ -53,6 +53,6 @@ type Problem struct {
 	Option1            string
 	Option2            string
 	Option3            string
-	AnswerOptionNumber string
+	AnswerOptionNumber int64
 	AnswerText         string
 }

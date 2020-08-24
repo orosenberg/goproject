@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 	"trivia/libraries/prize"
 	"trivia/libraries/problems"
@@ -57,13 +59,17 @@ problemloop:
 			fmt.Println()
 			break problemloop
 		case answer := <-answerCh:
-			if answer == p.AnswerOptionNumber {
+			answerNumber, err := strconv.ParseInt(strings.TrimSpace(answer), 10, 64)
+			if err != nil {
+				fmt.Println("(Use option numbers as your answer.)")
+			}
+			if answerNumber == p.AnswerOptionNumber {
 				fmt.Print("CORRECT\n")
 				prize.Calculate(reward)
 				correct++
 				announcement(prize.Amount)
 			} else {
-				fmt.Printf("INCORRECT => %s. %s\n", p.AnswerOptionNumber, p.AnswerText)
+				fmt.Printf("INCORRECT => %d. %s\n", p.AnswerOptionNumber, p.AnswerText)
 				prize.Calculate(-penalty)
 				announcement(prize.Amount)
 			}
