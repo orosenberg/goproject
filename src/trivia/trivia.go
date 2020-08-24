@@ -2,13 +2,11 @@ package main
 
 import (
 	"bufio"
-	"encoding/csv"
 	"flag"
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
 	"time"
+	"trivia/libraries/problems"
 )
 
 const limitSeconds = 60
@@ -32,20 +30,13 @@ func announcement(ammount int) {
 }
 
 func main() {
-	csvFilename := flag.String("csv", "problems.csv", "a csv file in the format of 'question,option,option,option,answer'")
 	timeLimit := flag.Int("limit", limitSeconds, "the time limit for the quiz in seconds")
 	flag.Parse()
 
-	file, err := os.Open(*csvFilename)
+	problems, err := problems.GetProblems()
 	if err != nil {
-		exit(fmt.Sprintf("Failed to open the CSV file: %s\n", *csvFilename))
+		exit(err)
 	}
-	r := csv.NewReader(file)
-	lines, err := r.ReadAll()
-	if err != nil {
-		exit("Failed to parse the provided CSV file.")
-	}
-	problems := parseLines(lines)
 
 	// ENTER to start
 	fmt.Printf("\n***************** 1980s TV TRIVIA QUIZ *****************\nYou win $%d for every correct answer!\nYou loose $%d for every wrong answer (no worries, you won't go negative, it's all about winning! :D)\nTime limit is %d seconds.\n\nREADY SET GO!(press ENTER to start)", reward, penalty, limitSeconds)
@@ -65,12 +56,11 @@ func main() {
 problemloop:
 	for _, p := range problems {
 		readQuestions++
-		announcement(prize.amount)
 
-		fmt.Printf("%s\n\n", p.q)
-		fmt.Printf(" 1. %s\n", p.o1)
-		fmt.Printf(" 2. %s\n", p.o2)
-		fmt.Printf(" 3. %s\n\n", p.o3)
+		fmt.Printf("%s\n\n", p.Question)
+		fmt.Printf(" 1. %s\n", p.Option1)
+		fmt.Printf(" 2. %s\n", p.Option2)
+		fmt.Printf(" 3. %s\n\n", p.Option3)
 		fmt.Print("Your answer: ")
 
 		answerCh := make(chan string)
@@ -85,17 +75,19 @@ problemloop:
 			fmt.Println()
 			break problemloop
 		case answer := <-answerCh:
-			if answer == p.a {
-				fmt.Print("*** CORRECT ***\n\n")
+			if answer == p.AnswerOptionNumber {
+				fmt.Print("*** CORRECT ***\n")
 				prize.calculate(reward)
 				correct++
-				fmt.Print("NEXT (press ENTER to continue)")
+				announcement(prize.amount)
+
 				reader := bufio.NewReader(os.Stdin)
 				_, _ = reader.ReadString('\n')
 			} else {
-				fmt.Printf("*** INCORRECT *** => %s. %s\n\n", p.a, p.aText)
+				fmt.Printf("*** INCORRECT *** => %s. %s\n", p.AnswerOptionNumber, p.AnswerText)
 				prize.calculate(-penalty)
-				fmt.Print("NEXT (press ENTER to continue)")
+				announcement(prize.amount)
+
 				reader := bufio.NewReader(os.Stdin)
 				_, _ = reader.ReadString('\n')
 			}
@@ -105,33 +97,7 @@ problemloop:
 	fmt.Printf("\nTIME'S UP!\nYou scored %d out of %d. Won $%d.\n", correct, readQuestions, prize.amount)
 }
 
-func parseLines(lines [][]string) []problem {
-	ret := make([]problem, len(lines))
-	for i, line := range lines {
-		solutionOptionNumber, _ := strconv.ParseInt(strings.TrimSpace(line[4]), 10, 64)
-
-		ret[i] = problem{
-			q:     line[0],
-			o1:    line[1],
-			o2:    line[2],
-			o3:    line[3],
-			a:     strings.TrimSpace(line[4]),
-			aText: line[solutionOptionNumber],
-		}
-	}
-	return ret
-}
-
-type problem struct {
-	q     string
-	o1    string
-	o2    string
-	o3    string
-	a     string
-	aText string
-}
-
-func exit(msg string) {
-	fmt.Println(msg)
+func exit(err error) {
+	fmt.Println(err)
 	os.Exit(1)
 }
