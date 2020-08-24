@@ -2,7 +2,6 @@ package trivia
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"os"
 	"time"
@@ -16,9 +15,6 @@ const penalty = 5
 
 // Trivia game
 func Trivia() error {
-	timeLimit := flag.Int("limit", limitSeconds, "the time limit for the quiz in seconds")
-	flag.Parse()
-
 	problems, err := problems.GetProblems()
 	if err != nil {
 		return err
@@ -28,11 +24,11 @@ func Trivia() error {
 	fmt.Printf("\n***************** 1980s TV TRIVIA QUIZ *****************\nYou win $%d for every correct answer!\nYou loose $%d for every wrong answer (no worries, you won't go negative, it's all about winning! :D)\nTime limit is %d seconds.\n\nREADY SET GO!(press ENTER to start)\n\n", reward, penalty, limitSeconds)
 	reader := bufio.NewReader(os.Stdin)
 	start, _ := reader.ReadString('\n')
-	timer := time.NewTimer(time.Duration(*timeLimit) * time.Second)
+	timer := time.NewTimer(time.Duration(limitSeconds) * time.Second)
 	timer.Stop()
 
 	if start[0] == 10 {
-		timer.Reset(time.Duration(*timeLimit) * time.Second)
+		timer.Reset(time.Duration(limitSeconds) * time.Second)
 	}
 	correct := 0
 	readQuestions := 0
