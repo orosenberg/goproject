@@ -32,8 +32,8 @@ func parseLines(lines [][]string) ([]Problem, error) {
 	ret := make([]Problem, len(lines))
 	for i, line := range lines {
 		if len(line) != 5 {
-			fmt.Printf("Wrong number of data columns, expected 5, received %d", len(line))
-			os.Exit(1)
+			err := fmt.Errorf("Wrong number of data columns, expected 5, received %d", len(line))
+			return nil, err
 		}
 
 		solutionOptionNumber, err := strconv.ParseInt(strings.TrimSpace(line[4]), 10, 64)
@@ -42,8 +42,8 @@ func parseLines(lines [][]string) ([]Problem, error) {
 		}
 
 		if !(solutionOptionNumber > 0 && solutionOptionNumber < 4) {
-			fmt.Printf("Solution number should be between 1-3 inclusive, received %d", solutionOptionNumber)
-			os.Exit(1)
+			err = fmt.Errorf("Solution number should be between 1-3 inclusive, received %d", solutionOptionNumber)
+			return nil, err
 		}
 
 		ret[i] = Problem{
