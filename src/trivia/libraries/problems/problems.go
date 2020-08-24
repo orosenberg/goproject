@@ -3,6 +3,7 @@ package problems
 import (
 	"encoding/csv"
 	"flag"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -30,9 +31,19 @@ func GetProblems() ([]Problem, error) {
 func parseLines(lines [][]string) ([]Problem, error) {
 	ret := make([]Problem, len(lines))
 	for i, line := range lines {
+		if len(line) != 5 {
+			fmt.Printf("Wrong number of data columns, expected 5, received %d", len(line))
+			os.Exit(1)
+		}
+
 		solutionOptionNumber, err := strconv.ParseInt(strings.TrimSpace(line[4]), 10, 64)
 		if err != nil {
 			return nil, err
+		}
+
+		if !(solutionOptionNumber > 0 && solutionOptionNumber < 4) {
+			fmt.Printf("Solution number should be between 1-3 inclusive, received %d", solutionOptionNumber)
+			os.Exit(1)
 		}
 
 		ret[i] = Problem{
