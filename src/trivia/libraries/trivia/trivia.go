@@ -37,7 +37,6 @@ func Trivia() error {
 
 	prize := &prize.Prize{0}
 
-problemloop:
 	for _, p := range problems {
 		readQuestions++
 
@@ -56,8 +55,8 @@ problemloop:
 
 		select {
 		case <-timer.C:
-			fmt.Println()
-			break problemloop
+			gameOver(correct, readQuestions, prize.Amount)
+			return nil
 		case answer := <-answerCh:
 			answerNumber, err := strconv.ParseInt(strings.TrimSpace(answer), 10, 64)
 			if err != nil {
@@ -75,9 +74,12 @@ problemloop:
 			}
 		}
 	}
-
-	fmt.Printf("\nTIME'S UP!\nYou scored %d out of %d. Won $%d.\n", correct, readQuestions, prize.Amount)
+	gameOver(correct, readQuestions, prize.Amount)
 	return nil
+}
+
+func gameOver(correct int, readQuestions int, prize int) {
+	fmt.Printf("\nTIME'S UP!\nYou scored %d out of %d. Won $%d.\n", correct, readQuestions, prize)
 }
 
 func announcement(ammount int) {
