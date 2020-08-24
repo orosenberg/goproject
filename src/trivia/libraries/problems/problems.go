@@ -9,8 +9,8 @@ import (
 )
 
 // GetProblems returns trivia questions
-func GetProblems(csvFilename *string) ([]Problem, error) {
-	file, err := os.Open(*csvFilename)
+func GetProblems(csvFilename string) ([]Problem, error) {
+	file, err := os.Open(csvFilename)
 	if err != nil {
 		return nil, err
 	}

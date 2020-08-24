@@ -12,7 +12,7 @@ import (
 	"trivia/libraries/problems"
 )
 
-const limitSeconds = 5
+const limitSeconds = 60
 const reward = 10
 const penalty = 5
 
@@ -20,7 +20,7 @@ const penalty = 5
 func Trivia() error {
 	csvFilename := flag.String("csv", "problems.csv", "a csv file in the format of 'question,option,option,option,answer'")
 	flag.Parse()
-	problems, err := problems.GetProblems(csvFilename)
+	problems, err := problems.GetProblems(*csvFilename)
 	if err != nil {
 		return err
 	}
