@@ -2,18 +2,15 @@ package problems
 
 import (
 	"encoding/csv"
-	"flag"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
 )
 
 // GetProblems returns trivia questions
-func GetProblems() ([]Problem, error) {
-	csvFilename := flag.String("csv", "problems.csv", "a csv file in the format of 'question,option,option,option,answer'")
-	flag.Parse()
-
-	file, err := os.Open(*csvFilename)
+func GetProblems(csvFilename string) ([]Problem, error) {
+	file, err := os.Open(csvFilename)
 	if err != nil {
 		return nil, err
 	}
@@ -30,8 +27,18 @@ func GetProblems() ([]Problem, error) {
 func parseLines(lines [][]string) ([]Problem, error) {
 	ret := make([]Problem, len(lines))
 	for i, line := range lines {
+		if len(line) != 5 {
+			err := fmt.Errorf("Wrong number of data columns, expected 5, received %d", len(line))
+			return nil, err
+		}
+
 		solutionOptionNumber, err := strconv.ParseInt(strings.TrimSpace(line[4]), 10, 64)
 		if err != nil {
+			return nil, err
+		}
+
+		if !(solutionOptionNumber > 0 && solutionOptionNumber < 4) {
+			err = fmt.Errorf("Solution number should be between 1-3 inclusive, received %d", solutionOptionNumber)
 			return nil, err
 		}
 
@@ -40,7 +47,7 @@ func parseLines(lines [][]string) ([]Problem, error) {
 			Option1:            line[1],
 			Option2:            line[2],
 			Option3:            line[3],
-			AnswerOptionNumber: strings.TrimSpace(line[4]),
+			AnswerOptionNumber: solutionOptionNumber,
 			AnswerText:         line[solutionOptionNumber],
 		}
 	}
@@ -53,6 +60,6 @@ type Problem struct {
 	Option1            string
 	Option2            string
 	Option3            string
-	AnswerOptionNumber string
+	AnswerOptionNumber int64
 	AnswerText         string
 }
