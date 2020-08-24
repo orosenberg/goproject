@@ -12,7 +12,7 @@ import (
 	"trivia/libraries/problems"
 )
 
-const limitSeconds = 60
+const limitSeconds = 5
 const reward = 10
 const penalty = 5
 
@@ -47,14 +47,10 @@ func Trivia() error {
 		fmt.Printf(" 1. %s\n", p.Option1)
 		fmt.Printf(" 2. %s\n", p.Option2)
 		fmt.Printf(" 3. %s\n\n", p.Option3)
-		fmt.Print("Your answer(enter a number): ")
+		fmt.Print("Your answer: ")
 
 		answerCh := make(chan string)
-		go func() {
-			var answer string
-			fmt.Scanf("%s\n", &answer)
-			answerCh <- answer
-		}()
+		go getAnswer(answerCh)
 
 		select {
 		case <-timer.C:
@@ -62,8 +58,9 @@ func Trivia() error {
 			return nil
 		case answer := <-answerCh:
 			answerNumber, err := strconv.ParseInt(strings.TrimSpace(answer), 10, 64)
-			if err != nil {
+			for err != nil {
 				fmt.Println("(Use option numbers as your answer.)")
+				go getAnswer(answerCh)
 			}
 			if answerNumber == p.AnswerOptionNumber {
 				fmt.Print("CORRECT\n")
@@ -79,6 +76,23 @@ func Trivia() error {
 	}
 	gameOver(correct, readQuestions, prize.Amount)
 	return nil
+}
+
+func isNumeric(s string) bool {
+	_, err := strconv.ParseFloat(s, 64)
+	return err == nil
+}
+
+func getAnswer(answerCh chan string) {
+	reader := bufio.NewReader(os.Stdin)
+	answer, _ := reader.ReadString('\n')
+
+	for !isNumeric(strings.TrimSpace(answer)) {
+		fmt.Print("Select one of the options(enter a number): ")
+		answer, _ = reader.ReadString('\n')
+	}
+
+	answerCh <- answer
 }
 
 func gameOver(correct int, readQuestions int, prize int) {
